@@ -1,11 +1,12 @@
-## Load required packages
+## STEP 0: load required packages
 
-## load the reshape2 package (necessary for melt() and dcast() functions to reshape data into tidy dataset)
+# load the reshape2 package (necessary for melt() and dcast() in step 5)
 library(reshape2)
 
-## Step 1: Merges the training and the test sets to create one data set.
 
-## read data into data frames
+## STEP 1: Merges the training and the test sets to create one data set
+
+# read data into data frames
 subject_train <- read.table("subject_train.txt")
 subject_test <- read.table("subject_test.txt")
 X_train <- read.table("X_train.txt")
@@ -29,37 +30,34 @@ names(y_test) <- "activity"
 # combine files into one dataset
 train <- cbind(subject_train, y_train, X_train)
 test <- cbind(subject_test, y_test, X_test)
-combinedData <- rbind(train, test)
+combined <- rbind(train, test)
 
 
-## STEP 2: Extracts only the measurements on the mean and standard deviation for each measurement. 
+## STEP 2: Extracts only the measurements on the mean and standard deviation for each measurement.
 
 # determine which columns contain "mean()" or "std()"
-meanStd <- grepl("mean\\(\\)", names(combinedData)) |
-  grepl("std\\(\\)", names(combinedData))
+meanStd <- grepl("mean\\(\\)", names(combined)) | grepl("std\\(\\)", names(combined))
 
 # ensure that we also keep the subjectID and activity columns
 meanStd[1:2] <- TRUE
 
 # remove unnecessary columns
-combinedData <- combinedData[, meanStd]
+combined <- combined[, meanStd]
 
 
-## STEP 3: Uses descriptive activity names to name the activities in the data set
+## STEP 3: Uses descriptive activity names to name the activities in the data set.
 
-## STEP 4: Appropriately labels the data set with descriptive variable names.  
+## STEP 4: Appropriately labels the data set with descriptive activity names. 
 
 # convert the activity column from integer to factor
-combinedData$activity <- factor(combinedData$activity, c("Walking","Walking Upstairs","Walking Downstairs",
-                                                        "Sitting","Standing","Laying"))
+combined$activity <- factor(combined$activity, labels=c("Walking","Walking Upstairs","Walking Downstairs","Sitting","Standing","Laying"))
 
 
-## STEP 5: From the data set in step 4, creates a second, independent tidy data set with the average 
-##of each variable for each activity and each subject.
+## STEP 5: Creates a second, independent tidy data set with the average of each variable for each activity and each subject.
 
-# create the tidy dataset
-melted <- melt(combinedData, id=c("subjectID","activity"))
+# create the tidy data set
+melted <- melt(combined, id=c("subjectID","activity"))
 tidy <- dcast(melted, subjectID+activity ~ variable, mean)
 
-# write the tidy dataset to a file
+# write the tidy data set to a file
 write.csv(tidy, "tidy.csv", row.names=FALSE)
