@@ -1,5 +1,3 @@
-## STEP 0: load required packages
-
 # load the reshape2 package (necessary for melt() and dcast() in step 5)
 library(reshape2)
 
